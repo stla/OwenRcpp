@@ -12,10 +12,7 @@
 #' ptOwen(2, 3, delta=1) - pt(2, 3, ncp=1)
 ptOwen <- function(q, nu, delta=0){
   if(isNotPositiveInteger(nu)){
-    stop("`nu` must be an integer >=1.")
-  }
-  if(is.infinite(q) || is.infinite(delta)){
-    stop("Parameters must be finite.")
+    stop("`nu` must be a finite integer >=1.")
   }
   pStudent(as.double(q), as.integer(nu), as.double(delta))
 }

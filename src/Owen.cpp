@@ -228,7 +228,7 @@ NumericVector sSequence(int n, double a, double b, double d);
 //****************************************************************************80
 // [[Rcpp::export]]
 double pStudent(double q, int nu, double delta){
-  double a = sqrt(q*q/nu);
+  double a = q/sqrt(nu);
   double b = nu/(nu+q*q);
   double sB = sqrt(b);
   if(nu % 2 == 1){

@@ -1,0 +1,12 @@
+Read-and-delete-me
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+src/*.o
+src/*.so
+src/*.dll
+man/
+src/rcpp_hello_world.cpp
+src/RcppExports.cpp
+R/RcppExports.R

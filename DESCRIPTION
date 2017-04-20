@@ -1,6 +1,6 @@
 Package: OwenRcpp
 Type: Package
-Title: What the Package Does in One 'Title Case' Line
+Title: Owen functions
 Version: 1.0
 Date: 2017-04-18
 Author: Stéphane Laurent
@@ -12,3 +12,4 @@ Imports: Rcpp (>= 0.12.10)
 LinkingTo: Rcpp
 RoxygenNote: 6.0.1
 Encoding: UTF-8
+Suggests: testthat

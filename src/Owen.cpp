@@ -11,28 +11,12 @@ double tfn ( double x, double fx )
 # define NG 5
 
   double fxs;
-  // double r[NG] = {
-  //   0.1477621,
-  //   0.1346334,
-  //   0.1095432,
-  //   0.0747257,
-  //   0.0333357 };
-  // double r1;
-  // double r2;
   double rt;
   double tp = 0.159155;
   double tv1 = 1.0E-35;
   double tv2 = 15.0;
   double tv3 = 15.0;
-  // double tv4 = 1.0E-05;
-  // double u[NG] = {
-  //   0.0744372,
-  //   0.2166977,
-  //   0.3397048,
-  //   0.4325317,
-  //   0.4869533 };
   double value;
-  // double x1;
   double x2;
   double xs;
 //
@@ -96,8 +80,6 @@ double tfn ( double x, double fx )
 //
   rt = 0.0;
   {
-    // double r1;
-    // double r2;
     double r[NG] = {
       0.1477621,
       0.1346334,
@@ -128,20 +110,19 @@ double tfn ( double x, double fx )
 double tfn ( double x, double fx );
 
 //****************************************************************************80
+double pNorm(double q){
+  return R::pnorm(q,0.0,1.0,1,0);
+}
+double pNorm(double q);
+
+//****************************************************************************80
 // [[Rcpp::export]]
 double tha ( double h1, double h2, double a1, double a2 )
 {
   double a;
-  // double absa;
   double ah;
-  // double c1;
-  // double c2;
-  // double ex;
   double g;
-  // double gah;
-  // double gh;
   double h;
-  // double lam;
   double twopi = 6.2831853071795864769;
   double value;
 
@@ -155,7 +136,7 @@ double tha ( double h1, double h2, double a1, double a2 )
 
   if ( a2 == 0.0 )
   {
-    g = R::pnorm(h, 0.0, 1.0, 1, 0);
+    g = pNorm(h);
 
     if ( h < 0.0 )
     {
@@ -179,7 +160,7 @@ double tha ( double h1, double h2, double a1, double a2 )
   {
     double lam = fabs ( a * h );
     double ex = exp ( - lam * lam / 2.0 );
-    g = R::pnorm ( lam, 0.0, 1.0, 1, 0 );
+    g = pNorm ( lam );
     double c1 = ( ex / lam + sqrt ( twopi ) * ( g - 0.5 ) ) / twopi;
     double c2 = ( ( lam * lam + 2.0 ) * ex / lam / lam / lam
       + sqrt ( twopi ) * ( g - 0.5 ) ) / ( 6.0 * twopi );
@@ -205,8 +186,8 @@ double tha ( double h1, double h2, double a1, double a2 )
     }
 
     ah = absa * h;
-    double gh = R::pnorm ( h, 0.0, 1.0, 1, 0 );
-    double gah = R::pnorm ( ah, 0.0, 1.0, 1, 0 );
+    double gh = pNorm ( h );
+    double gah = pNorm ( ah );
     value = 0.5 * ( gh + gah ) - gh * gah - tfn ( ah, 1.0 / absa );
 
     if ( a < 0.0 )
@@ -220,15 +201,21 @@ double tha ( double h1, double h2, double a1, double a2 )
 double tha ( double h1, double h2, double a1, double a2 );
 
 //****************************************************************************80
+double dNorm(double x){
+  return R::dnorm(x,0.0,1.0,0);
+}
+double dNorm(double x);
+
+//****************************************************************************80
 NumericVector sSequence(int n, double a, double b, double d){
   NumericVector A(n);
   NumericVector M(n);
   double sB = sqrt(b);
-  M[0] = a * sB * R::dnorm(d*sB, 0.0, 1.0, 0) * R::pnorm(d*a*sB, 0.0, 1.0, 1, 0);
+  M[0] = a * sB * dNorm(d*sB) * pNorm(d*a*sB);
   if(n>1){
     double sqrt2pi = 2.506628274631000502415765284811;
     A[1] = 1.0;
-    M[1] = b * (d * a * M[0] + a * R::dnorm(d, 0.0, 1.0, 0) / sqrt2pi);
+    M[1] = b * (d * a * M[0] + a * dNorm(d) / sqrt2pi);
     if(n>2){
       int k;
       for ( k = 2; k < n; k++ ){
@@ -249,7 +236,7 @@ double pStudent(double q, int nu, double delta){
   double b = nu/(nu+q*q);
   double sB = sqrt(b);
   if(nu % 2 == 1){
-    double C = R::pnorm(-delta*sB, 0.0, 1.0, 1, 0) + 2.0 * tfn(delta*sB,a);
+    double C = pNorm(-delta*sB) + 2.0 * tfn(delta*sB,a);
     if(nu == 1){
       return C;
     }else{
@@ -269,19 +256,10 @@ double pStudent(double q, int nu, double delta){
       sum += M[i];
     }
     double sqrt2pi = 2.506628274631000502415765284811;
-    return R::pnorm(-delta, 0.0, 1.0, 1, 0) + sqrt2pi * sum;
+    return pNorm(-delta) + sqrt2pi * sum;
   }
 }
 
-double dNorm(double x){
-  return R::dnorm(x,0.0,1.0,0);
-}
-double dNorm(double x);
-
-double pNorm(double q){
-  return R::pnorm(q,0.0,1.0,1,0);
-}
-double pNorm(double q);
 
 //****************************************************************************80
 // [[Rcpp::export]]

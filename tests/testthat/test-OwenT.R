@@ -21,5 +21,9 @@ test_that("OwenT(h,Inf)", {
 
 test_that("Relation OwenT Cauchy", {
   h <- 2; a <- 2
-  expect_equal(OwenT(h, a), 1/2*(pt(a, 1, h*sqrt(1+a^2)) - pnorm(-h)))
+  expect_equal(OwenT(h, a), 1/2*(pt(a, 1, h*sqrt(1+a^2)) - pnorm(-h)), tolerance=1e-8)
+})
+
+test_that("Comparison Mathematica", {
+  expect_equal(OwenT(1,2), 0.078468186993084, tolerance=1e-6)
 })

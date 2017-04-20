@@ -2,6 +2,7 @@ context("OwenT")
 
 test_that("Owen T is symmetric", {
   expect_true(OwenT(2,1) == OwenT(-2,1))
+  expect_true(OwenT(2,1) == -OwenT(2,-1))
 })
 
 test_that("OwenT(0,a)", {
@@ -26,4 +27,14 @@ test_that("Relation OwenT Cauchy", {
 
 test_that("Comparison Mathematica", {
   expect_equal(OwenT(1,2), 0.078468186993084, tolerance=1e-6)
+})
+
+test_that("Relation T(h,a) T(ah,1/a)", {
+  h <- 0.5; a <- 2
+  expect_equal(OwenT(h,a)+OwenT(a*h,1/a), (pnorm(h)+pnorm(a*h))/2-pnorm(h)*pnorm(a*h), 
+               tolerance=1e-6)
+  a <- -2
+  expect_equal(OwenT(h,a)+OwenT(a*h,1/a), 
+               (pnorm(h)+pnorm(a*h))/2-pnorm(h)*pnorm(a*h)-0.5, 
+               tolerance=1e-6)
 })

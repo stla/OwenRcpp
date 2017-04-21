@@ -20,13 +20,14 @@
 #' OwenT(1,10000) - (1-pnorm(abs(1)))/2
 #' OwenT(1,Inf) == (1-pnorm(abs(1)))/2
 OwenT <- function(h, a){
-  if(is.infinite(a)){
-    return(sign(a)*(1-pnorm(abs(h)))/2)
-  }else if(is.infinite(h)){
-    return(0)
-  }else{
-    return(tfn(h, a))
-  }
+  # if(is.infinite(a)){
+  #   return(sign(a)*(1-pnorm(abs(h)))/2)
+  # }else if(is.infinite(h)){
+  #   return(0)
+  # }else{
+  #   return(tfn(h, a))
+  # }
+  OwenTratios(h, 1, a, 1)
 }
 
 #' @title Owen T-function for ratio values of the parameters

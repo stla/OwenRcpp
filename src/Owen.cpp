@@ -236,7 +236,7 @@ double pStudent(double q, int nu, double delta){
   double b = nu/(nu+q*q);
   double sB = sqrt(b);
   if(nu % 2 == 1){
-    double C = pNorm(-delta*sB) + 2.0 * tfn(delta*sB,a);
+    double C = pNorm(-delta*sB) + 2.0 * tha(delta*sB,1,a,1);
     if(nu == 1){
       return C;
     }else{
@@ -269,7 +269,7 @@ double owenQ1(int nu, double t, double delta, double R){
   double sB = sqrt(b);
   if(nu==1){
     double C = pNorm(R) - 2*tha(R, 1, a*R-delta, R) -
-      2*tha(delta*sB, 1, delta*a*b-R, b*delta) + 2*tfn(delta*sB, a) -
+      2*tha(delta*sB, 1, delta*a*b-R, b*delta) + 2*tha(delta*sB, 1, a, 1) -
       (delta>=0);
     return C;
   }
@@ -317,7 +317,7 @@ double owenQ1(int nu, double t, double delta, double R){
       sum += M[i]+H[i];
     }
     double C = pNorm(R) - 2*tha(R, 1, a*R-delta, R) -
-      2*tha(delta*sB, 1, delta*a*b-R, b*delta) + 2*tfn(delta*sB, a) -
+      2*tha(delta*sB, 1, delta*a*b-R, b*delta) + 2*tha(delta*sB, 1, a, 1) -
       (delta>=0);
     return C+2*sum;
   }

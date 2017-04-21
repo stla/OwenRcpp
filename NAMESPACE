@@ -2,7 +2,6 @@
 
 export(OwenQ1)
 export(OwenT)
-export(OwenTratios)
 export(ptOwen)
 importFrom(Rcpp,evalCpp)
 importFrom(stats,pnorm)

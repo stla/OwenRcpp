@@ -1,113 +1,9 @@
-# include <Rcpp.h>
+#include <Rcpp.h>
 using namespace Rcpp;
-# include <cstdlib>
-# include <cmath>
-using namespace std;
-
-//****************************************************************************80
-// [[Rcpp::export]]
-double tfn ( double x, double fx )
-{
-# define NG 5
-
-  double fxs;
-  double rt;
-  double tp = 0.159155;
-  double tv1 = 1.0E-35;
-  double tv2 = 15.0;
-  double tv3 = 15.0;
-  double value;
-  double x2;
-  double xs;
-//
-//  Test for X near zero.
-//
-  if ( fabs ( x ) < tv1 )
-  {
-    value = tp * atan ( fx );
-    return value;
-  }
-//
-//  Test for large values of abs(X).
-//
-  if ( tv2 < fabs ( x ) )
-  {
-    value = 0.0;
-    return value;
-  }
-//
-//  Test for FX near zero.
-//
-  if ( fabs ( fx ) < tv1 )
-  {
-    value = 0.0;
-    return value;
-  }
-//
-//  Test whether abs ( FX ) is so large that it must be truncated.
-//
-  xs = - 0.5 * x * x;
-  x2 = fx;
-  fxs = fx * fx;
-//
-//  Computation of truncation point by Newton iteration.
-//
-  if ( tv3 <= log1p ( fxs ) - xs * fxs )
-  {
-    double tv4 = 1.0E-05;
-    double x1;
-    x1 = 0.5 * fx;
-    fxs = 0.25 * fxs;
-
-    for ( ; ; )
-    {
-      rt = fxs + 1.0;
-
-      x2 = x1 + ( xs * fxs + tv3 - log ( rt ) )
-      / ( 2.0 * x1 * ( 1.0 / rt - xs ) );
-
-      fxs = x2 * x2;
-
-      if ( fabs ( x2 - x1 ) < tv4 )
-      {
-        break;
-      }
-      x1 = x2;
-    }
-  }
-//
-//  Gaussian quadrature.
-//
-  rt = 0.0;
-  {
-    double r[NG] = {
-      0.1477621,
-      0.1346334,
-      0.1095432,
-      0.0747257,
-      0.0333357 };
-    double u[NG] = {
-      0.0744372,
-      0.2166977,
-      0.3397048,
-      0.4325317,
-      0.4869533 };
-    int i;
-    for ( i = 0; i < NG; i++ )
-    {
-      double r1 = 1.0 + fxs * pow ( 0.5 + u[i], 2 );
-      double r2 = 1.0 + fxs * pow ( 0.5 - u[i], 2 );
-      rt = rt + r[i] * ( exp ( xs * r1 ) / r1 + exp ( xs * r2 ) / r2 );
-    }
-  }
-
-  value = rt * x2 * tp;
-
-  return value;
-# undef NG
-}
-
-double tfn ( double x, double fx );
+// # include <cstdlib>
+#include <cmath>
+// using namespace std;
+#include "OwenIntegrator.h"
 
 //****************************************************************************80
 double pNorm(double q){
@@ -117,88 +13,21 @@ double pNorm(double q);
 
 //****************************************************************************80
 // [[Rcpp::export]]
-double tha ( double h1, double h2, double a1, double a2 )
+double Tha(double h, double a, double error=1e-16)
 {
-  double a;
-  double ah;
-  double g;
-  double h;
-  double twopi = 6.2831853071795864769;
-  double value;
-
-  if ( h2 == 0.0 )
-  {
-    value = 0.0;
-    return value;
+  double result;
+  if(a < 0){
+    result = -Tha(h,-a);
   }
-
-  h = h1 / h2;
-
-  if ( a2 == 0.0 )
-  {
-    g = pNorm(h);
-
-    if ( h < 0.0 )
-    {
-      value = g / 2.0;
-    }
-    else
-    {
-      value = ( 1.0 - g ) / 2.0;
-    }
-
-    if ( a1 < 0.0 )
-    {
-      value = - value;
-    }
-    return value;
+  if(a <= 1){
+	  result = OwenIntegrator::Integrate(h, a, error) / 6.2831853071795862;
+  }else{
+    result = (pNorm(h)+pNorm(a*h))/2-pNorm(h)*pNorm(a*h) - Tha(a*h, 1/a, error);
   }
-
-  a = a1 / a2;
-
-  if ( fabs ( h ) < 0.3 && 7.0 < fabs ( a ) )
-  {
-    double lam = fabs ( a * h );
-    double ex = exp ( - lam * lam / 2.0 );
-    g = pNorm ( lam );
-    double c1 = ( ex / lam + sqrt ( twopi ) * ( g - 0.5 ) ) / twopi;
-    double c2 = ( ( lam * lam + 2.0 ) * ex / lam / lam / lam
-      + sqrt ( twopi ) * ( g - 0.5 ) ) / ( 6.0 * twopi );
-    ah = fabs ( h );
-    value = 0.25 - c1 * ah + c2 * ah * ah * ah;
-    if ( a < 0.0 )
-    {
-      value = - fabs ( value );
-    }
-    else
-    {
-      value = fabs ( value );
-    }
-  }
-  else
-  {
-    double absa = fabs ( a );
-
-    if ( absa <= 1.0 )
-    {
-      value = tfn ( h, a );
-      return value;
-    }
-
-    ah = absa * h;
-    double gh = pNorm ( h );
-    double gah = pNorm ( ah );
-    value = 0.5 * ( gh + gah ) - gh * gah - tfn ( ah, 1.0 / absa );
-
-    if ( a < 0.0 )
-    {
-      value = - value;
-    }
-  }
-  return value;
+  return result;
 }
 
-double tha ( double h1, double h2, double a1, double a2 );
+double Tha ( double h, double a, double error );
 
 //****************************************************************************80
 double dNorm(double x){
@@ -236,7 +65,7 @@ double pStudent(double q, int nu, double delta){
   double b = nu/(nu+q*q);
   double sB = sqrt(b);
   if(nu % 2 == 1){
-    double C = pNorm(-delta*sB) + 2.0 * tha(delta*sB,1,a,1);
+    double C = pNorm(-delta*sB) + 2.0 * Tha(delta*sB,a);
     if(nu == 1){
       return C;
     }else{
@@ -268,9 +97,12 @@ double owenQ1(int nu, double t, double delta, double R){
   double b = nu/(nu+t*t);
   double sB = sqrt(b);
   if(nu==1){
-    double C = pNorm(R) - 2*tha(R, 1, a*R-delta, R) -
-      2*tha(delta*sB, 1, delta*a*b-R, b*delta) + 2*tha(delta*sB, 1, a, 1) -
-      (delta>=0);
+    double C = pNorm(R) - (delta>=0) - 2*Tha(R, (a*R-delta)/R);
+    if(delta != 0){
+      C += -2*Tha(delta*sB, (delta*a*b-R)/(b*delta)) + 2*Tha(delta*sB, a);
+    }else{
+      C += 0.5 + atan(a)/3.1415926535897931;
+    }
     return C;
   }
   int n = nu-1;
@@ -316,9 +148,12 @@ double owenQ1(int nu, double t, double delta, double R){
     for(i=1; i<nu-1; i+=2){
       sum += M[i]+H[i];
     }
-    double C = pNorm(R) - 2*tha(R, 1, a*R-delta, R) -
-      2*tha(delta*sB, 1, delta*a*b-R, b*delta) + 2*tha(delta*sB, 1, a, 1) -
-      (delta>=0);
+    double C = pNorm(R) - (delta>=0) - 2*Tha(R, (a*R-delta)/R);
+    if(delta != 0){
+      C += -2*Tha(delta*sB, (delta*a*b-R)/(b*delta)) + 2*Tha(delta*sB, a);
+    }else{
+      C += 0.5 + atan(a)/3.1415926535897931;
+    }
     return C+2*sum;
   }
 }
